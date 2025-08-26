@@ -14,6 +14,7 @@ provider "cloudflare" {
 
 
 resource "cloudflare_worker_script" "remoote_worker" {
-  name    = "my-remoote_worker"               # Name of the new Worker
+  name    = "my-remoote_worker"    # Name of the new Worker
+  account_id = var.c_account           
   content = file("${path.module}/src/index.js")
 }
