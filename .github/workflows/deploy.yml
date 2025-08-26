@@ -3,6 +3,7 @@ name: Deploy Cloudflare Worker
 on:
   push:
     branches: [ "main" ]
+  pull_request:
 
 jobs:
   terraform:
@@ -16,7 +17,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}  # Terraform Cloud token
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Terraform Init
         run: terraform init
@@ -24,8 +25,19 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-      - name: Terraform Plan
-        run: terraform plan -input=false
+      - name: Terraform Plan (PR)
+        if: github.event_name == 'pull_request'
+        id: plan
+        run: terraform plan -input=false -out=tfplan
+        continue-on-error: true
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve -input=false
+      - name: Save Plan as Artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v3
+        with:
+          name: terraform-plan
+          path: tfplan
+
+      - name: Terraform Apply (Main)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve tfplan
