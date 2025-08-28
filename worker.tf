@@ -12,13 +12,6 @@ provider "cloudflare" {
 }
 resource "cloudflare_workers_script" "my-hello-world-script" {
   account_id = var.c_account 
-  script_name = "my-hello-world-script"
-  main_module = "my-hello-world-script.mjs"
-  content = trimspace(file("my-hello-world-script.mjs"))
-  compatibility_date = "$today"
-  bindings = [{
-    name = "MESSAGE"
-    type = "plain_text"
-    text = "Hello World!"
-  }]
+  
+  ccontent = file("${path.module}/src/index.js")
 }
