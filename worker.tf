@@ -12,6 +12,6 @@ provider "cloudflare" {
 }
 resource "cloudflare_workers_script" "my-hello-world-script" {
   account_id = var.c_account 
-  name    = "my-hello-world-script"
+  script_name = "my-hello-world-script"
   content = file("${path.module}/src/index.js")
 }
